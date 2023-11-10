@@ -1,0 +1,71 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id    String @id @default(cuid())
+  email String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  password Password?
+  notes    Note[]
+  deposits Deposit[]
+  investments Investment[]
+}
+
+
+
+model Password {
+  hash String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+}
+
+model Note {
+  id    String @id @default(cuid())
+  title String
+  body  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+}
+
+model Deposit {
+  id String @id @default(cuid())
+  amount Int
+  paymentMethod String
+  status String @default("Pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+}
+
+
+model App {
+  id String @id @default(uuid())
+  sitename String?
+  btc String @default("bc1qr0dpwqwunqlwdyuwqagr8k6vety73fpupw6ctz")
+  eth String?
+  usdt String?
+  btCash String?
+  adminEmail String? @default("admin@coin-stocks.com") @unique
+  supportEmail String? @default("support@coin-stocks.com") @unique
+  passwordHash String?
+}
+
+model Investment {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  expiredAt DateTime
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+  plan String
+  interest Float
+}
